@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление тест-кейсами</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Верхняя панель инструментов -->
+    <header class="toolbar">
+        <div class="toolbar__left">
+            <h1 class="toolbar__title">Управление тест-кейсами</h1>
+        </div>
+        <div class="toolbar__right">
+            <input type="text" id="searchInput" class="form-control toolbar__search" placeholder="Поиск по названию/ID...">
+            <button id="runAllBtn" class="btn btn--primary">▶ Запустить все</button>
+            <button id="resetStatusBtn" class="btn btn--secondary">⟲ Сбросить статусы</button>
+            <button id="exportBtn" class="btn btn--outline">📄 Экспорт</button>
+        </div>
+    </header>
+
+    <!-- Основная область -->
+    <main class="main-content">
+        <!-- Левая панель - навигатор -->
+        <aside class="navigator">
+            <div class="navigator__header">
+                <h3>Структура тестов</h3>
+                <div class="navigator__actions">
+                    <button id="createFolderBtn" class="btn btn--sm btn--outline" title="Создать папку">📁+</button>
+                </div>
+            </div>
+            <div class="navigator__tree" id="navigatorTree">
+                <!-- Дерево будет сгенерировано JS -->
+            </div>
+        </aside>
+
+        <!-- Правая панель - детали -->
+        <section class="details-panel">
+            <div id="welcomeMessage" class="welcome-message">
+                <h2>Добро пожаловать в систему управления тест-кейсами</h2>
+                <p>Выберите тест-кейс из навигатора для просмотра и редактирования</p>
+            </div>
+
+            <div id="testCaseDetails" class="test-case-details hidden">
+                <!-- Вкладки -->
+                <div class="tabs">
+                    <button class="tab-button active" data-tab="details">Детали</button>
+                    <button class="tab-button" data-tab="execution">Выполнение</button>
+                    <button class="tab-button" data-tab="results">Результаты</button>
+                </div>
+
+                <!-- Вкладка "Детали" -->
+                <div id="detailsTab" class="tab-content active">
+                    <form id="testCaseForm" class="test-case-form">
+                        <div class="form-group">
+                            <label class="form-label">Название:</label>
+                            <input type="text" id="testName" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Автор:</label>
+                                <input type="text" id="testAuthor" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Назначение:</label>
+                                <input type="text" id="testAssignee" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Статус:</label>
+                            <select id="testStatus" class="form-control">
+                                <option value="draft">Черновик</option>
+                                <option value="active">Активный</option>
+                                <option value="deprecated">Устаревший</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Теги:</label>
+                            <div class="tags-input">
+                                <div id="tagsList" class="tags-list"></div>
+                                <input type="text" id="newTag" class="form-control" placeholder="Добавить тег...">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Предусловия:</label>
+                            <textarea id="testPreconditions" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="steps-header">
+                                <label class="form-label">Шаги:</label>
+                                <button type="button" id="addStepBtn" class="btn btn--sm btn--outline">+ Добавить шаг</button>
+                            </div>
+                            <div id="stepsList" class="steps-list">
+                                <!-- Шаги будут сгенерированы JS -->
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn--primary">💾 Сохранить</button>
+                            <button type="button" id="cloneTestBtn" class="btn btn--secondary">📋 Клонировать</button>
+                            <button type="button" id="deleteTestBtn" class="btn btn--outline">🗑 Удалить</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Вкладка "Выполнение" -->
+                <div id="executionTab" class="tab-content hidden">
+                    <div class="execution-panel">
+                        <div class="execution-header">
+                            <h3>Выполнение тест-кейса</h3>
+                            <div class="execution-status">
+                                <span class="status-label">Общий статус:</span>
+                                <span id="overallStatus" class="status status--info">Не запущен</span>
+                            </div>
+                        </div>
+                        <div id="executionSteps" class="execution-steps">
+                            <!-- Шаги для выполнения будут сгенерированы JS -->
+                        </div>
+                        <div class="execution-actions">
+                            <button id="finishExecutionBtn" class="btn btn--primary">✅ Завершить выполнение</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Вкладка "Результаты" -->
+                <div id="resultsTab" class="tab-content hidden">
+                    <div class="results-panel">
+                        <h3>История выполнений</h3>
+                        <div id="executionHistory" class="execution-history">
+                            <p class="empty-state">Выполнений пока нет</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Контекстное меню -->
+    <div id="contextMenu" class="context-menu hidden">
+        <div class="context-menu-item" data-action="rename">✏️ Переименовать</div>
+        <div class="context-menu-item" data-action="delete">🗑️ Удалить</div>
+        <div class="context-menu-item" data-action="clone">📋 Клонировать</div>
+        <div class="context-menu-item" data-action="run">▶️ Запустить</div>
+        <div class="context-menu-item" data-action="create-folder">📁 Создать папку</div>
+        <div class="context-menu-item" data-action="create-test">📝 Создать тест-кейс</div>
+    </div>
+
+    <!-- Модальные окна -->
+    <div id="confirmModal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="confirmTitle">Подтверждение</h3>
+            <p id="confirmMessage">Вы уверены?</p>
+            <div class="modal-actions">
+                <button id="confirmYes" class="btn btn--primary">Да</button>
+                <button id="confirmNo" class="btn btn--secondary">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="inputModal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="inputTitle">Введите название</h3>
+            <input type="text" id="inputField" class="form-control" placeholder="Название...">
+            <div class="modal-actions">
+                <button id="inputOk" class="btn btn--primary">OK</button>
+                <button id="inputCancel" class="btn btn--secondary">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
